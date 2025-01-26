@@ -18,6 +18,16 @@ let keys = {
     ArrowRight: false,
 };
 
+// Variables for touch/swipe controls
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+gameArea.addEventListener("touchstart", handleTouchStart);
+gameArea.addEventListener("touchmove", handleTouchMove);
+gameArea.addEventListener("touchend", handleTouchEnd);
+
 function keyDown(e) {
     e.preventDefault();
     keys[e.key] = true;
@@ -25,6 +35,57 @@ function keyDown(e) {
 function keyUp(e) {
     e.preventDefault();
     keys[e.key] = false;
+}
+
+// Handle touch start
+function handleTouchStart(e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+}
+
+// Handle touch move
+function handleTouchMove(e) {
+    touchEndX = e.touches[0].clientX;
+    touchEndY = e.touches[0].clientY;
+}
+
+// Handle touch end (detect swipe direction)
+function handleTouchEnd() {
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    // Check if the swipe is primarily horizontal or vertical
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Horizontal swipe
+        if (deltaX > 0) {
+            // Swipe Right
+            keys.ArrowRight = true;
+            keys.ArrowLeft = false;
+        } else {
+            // Swipe Left
+            keys.ArrowLeft = true;
+            keys.ArrowRight = false;
+        }
+    } else {
+        // Vertical swipe
+        if (deltaY > 0) {
+            // Swipe Down
+            keys.ArrowDown = true;
+            keys.ArrowUp = false;
+        } else {
+            // Swipe Up
+            keys.ArrowUp = true;
+            keys.ArrowDown = false;
+        }
+    }
+
+    // Reset keys after a short delay to prevent continuous movement
+    setTimeout(() => {
+        keys.ArrowUp = false;
+        keys.ArrowDown = false;
+        keys.ArrowLeft = false;
+        keys.ArrowRight = false;
+    }, 100);
 }
 
 function gamePlay() {
@@ -58,6 +119,7 @@ function gamePlay() {
         score.innerHTML = "Score: " + player.score;
     }
 }
+
 function moveLines() {
     let lines = document.querySelectorAll(".line");
     lines.forEach((line, index) => {
