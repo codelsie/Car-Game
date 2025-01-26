@@ -45,47 +45,40 @@ function handleTouchStart(e) {
 
 // Handle touch move
 function handleTouchMove(e) {
+    e.preventDefault(); // Prevent default touch behavior
+
     touchEndX = e.touches[0].clientX;
     touchEndY = e.touches[0].clientY;
-}
 
-// Handle touch end (detect swipe direction)
-function handleTouchEnd() {
     const deltaX = touchEndX - touchStartX;
     const deltaY = touchEndY - touchStartY;
 
-    // Check if the swipe is primarily horizontal or vertical
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        // Horizontal swipe
-        if (deltaX > 0) {
-            // Swipe Right
-            keys.ArrowRight = true;
-            keys.ArrowLeft = false;
-        } else {
-            // Swipe Left
-            keys.ArrowLeft = true;
-            keys.ArrowRight = false;
-        }
-    } else {
-        // Vertical swipe
-        if (deltaY > 0) {
-            // Swipe Down
-            keys.ArrowDown = true;
-            keys.ArrowUp = false;
-        } else {
-            // Swipe Up
-            keys.ArrowUp = true;
-            keys.ArrowDown = false;
-        }
-    }
+    // Update the car's position based on the swipe
+    player.x += deltaX * 0.1; // Adjust multiplier for sensitivity
+    player.y += deltaY * 0.1;
 
-    // Reset keys after a short delay to prevent continuous movement
-    setTimeout(() => {
-        keys.ArrowUp = false;
-        keys.ArrowDown = false;
-        keys.ArrowLeft = false;
-        keys.ArrowRight = false;
-    }, 100);
+    // Constrain car within the game area
+    let road = gameArea.getBoundingClientRect();
+    player.x = Math.max(0, Math.min(player.x, road.width - 70)); // Prevent going outside left/right
+    player.y = Math.max(road.top + 150, Math.min(player.y, road.bottom - 80)); // Prevent going outside top/bottom
+
+    // Update touch start positions for smooth continuous movement
+    touchStartX = touchEndX;
+    touchStartY = touchEndY;
+
+    // Update car position instantly
+    let car = document.querySelector(".car");
+    car.style.left = `${player.x}px`;
+    car.style.top = `${player.y}px`;
+}
+
+// Handle touch end (reset swipe controls)
+function handleTouchEnd() {
+    // Reset keys after touch ends
+    keys.ArrowUp = false;
+    keys.ArrowDown = false;
+    keys.ArrowLeft = false;
+    keys.ArrowRight = false;
 }
 
 function gamePlay() {
