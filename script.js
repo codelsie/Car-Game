@@ -117,7 +117,7 @@ function gamePlay() {
 
     player.score++;
 
-    score.innerHTML = "Score: " + player.score;
+    score.innerText = `Score: ${player.score} (${player.hscore})`;
   }
 }
 
@@ -167,6 +167,9 @@ function startGame() {
 
   player.start = true;
   player.score = 0;
+  // % vplus265 
+  // get highest score
+  player.hscore = Number(localStorage.getItem('cargame_hscore')) || 0;
   window.requestAnimationFrame(gamePlay);
 
   for (let i = 0; i < 5; i++) {
@@ -199,4 +202,26 @@ function startGame() {
 function endGame() {
   player.start = false;
   startScreen.classList.remove("hide");
+
+  // % vplus265
+  // save highest score
+  if (Number(localStorage.getItem('cargame_hscore')) < player.score) {
+    startScreen.innerHTML =
+      `
+      <p>
+        New High Score ${player.score} ! <br>
+        Click to Start
+      </p>
+    `;
+    localStorage.setItem('cargame_hscore', player.score);
+  } else {
+    startScreen.innerHTML =
+
+      `      <p>
+        Click to Start<br />
+        Use the arrow keys to move<br />
+        Avoid hitting other cars to stay in the game!
+      </p>
+`;
+  }
 }
